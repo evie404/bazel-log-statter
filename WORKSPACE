@@ -79,3 +79,9 @@ _go_image_repos()
 load("@io_bazel_rules_k8s//k8s:k8s.bzl", "k8s_repositories")
 
 k8s_repositories()
+
+go_repository(
+    name = "com_github_stretchr_testify",
+    importpath = "github.com/stretchr/testify",
+    commit = "34c6fa2dc70986bccbbffcc6130f6920a924b075", # Mar 4, 2019
+)
