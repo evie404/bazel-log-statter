@@ -1,4 +1,4 @@
-PROJECT := golang-boilerplate
+PROJECT := blogs
 
 .PHONY: default build buildifier
 

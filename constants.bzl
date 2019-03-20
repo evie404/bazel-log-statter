@@ -1,1 +1,1 @@
-GO_PREFIX = "github.com/rickypai/golang-boilerplate"
+GO_PREFIX = "github.com/rickypai/blogs"
