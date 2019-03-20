@@ -23,73 +23,85 @@ const (
 	StatusFlaky    Status = "FLAKY"
 )
 
-func ParseLine(line string) (target string, cached bool, status Status, duration time.Duration, err error) {
-	var matched bool
-
-	matched, target, cached, status, duration, err = cachedMatches(line)
-	if matched || err != nil {
-		return
-	}
-
-	matched, target, cached, status, duration, err = uncachedMatches(line)
-	if matched || err != nil {
-		return
-	}
-
-	matched, target, cached, status, duration, err = noStatusMatches(line)
-	if matched || err != nil {
-		return
-	}
-
-	return "", false, StatusUnknown, 0, nil
+type TargetResult struct {
+	Name   string
+	Cached bool
+	Status
+	time.Duration
 }
 
-func cachedMatches(line string) (matched bool, target string, cached bool, status Status, duration time.Duration, err error) {
+func ParseLine(line string) (result *TargetResult, err error) {
+	result, err = cachedMatches(line)
+	if result != nil {
+		return
+	}
+
+	result, err = uncachedMatches(line)
+	if result != nil {
+		return
+	}
+
+	result, err = noStatusMatches(line)
+	if result != nil {
+		return
+	}
+
+	return nil, nil
+}
+
+func cachedMatches(line string) (*TargetResult, error) {
+	var err error
+
 	matches := cachedLineRegex.FindStringSubmatch(line)
 
 	if len(matches) == 0 {
-		return false, "", false, StatusUnknown, 0, err
+		return nil, nil
 	}
 
-	target = strings.TrimSpace(matches[1])
-	cached = matches[2] == "(cached)"
-	status = Status(matches[3])
-	duration, err = parseDuration(matches[4])
+	result := &TargetResult{}
+	result.Name = strings.TrimSpace(matches[1])
+	result.Cached = matches[2] == "(cached)"
+	result.Status = Status(matches[3])
+	result.Duration, err = parseDuration(matches[4])
 	if err != nil {
-		return false, "", false, StatusUnknown, 0, err
+		return nil, err
 	}
 
-	return true, target, cached, status, duration, nil
+	return result, nil
 }
 
-func uncachedMatches(line string) (matched bool, target string, cached bool, status Status, duration time.Duration, err error) {
+func uncachedMatches(line string) (*TargetResult, error) {
+	var err error
+
 	matches := uncachedLineRegex.FindStringSubmatch(line)
 
 	if len(matches) == 0 {
-		return false, "", false, StatusUnknown, 0, err
+		return nil, nil
 	}
 
-	target = strings.TrimSpace(matches[1])
-	status = Status(matches[2])
-	duration, err = parseDuration(matches[3])
+	result := &TargetResult{}
+	result.Name = strings.TrimSpace(matches[1])
+	result.Status = Status(matches[2])
+	result.Duration, err = parseDuration(matches[3])
 	if err != nil {
-		return false, "", false, StatusUnknown, 0, err
+		return nil, err
 	}
 
-	return true, target, false, status, duration, nil
+	return result, nil
 }
 
-func noStatusMatches(line string) (matched bool, target string, cached bool, status Status, duration time.Duration, err error) {
+func noStatusMatches(line string) (*TargetResult, error) {
 	matches := noStatusLineRegex.FindStringSubmatch(line)
 
 	if len(matches) == 0 {
-		return false, "", false, StatusUnknown, 0, err
+		return nil, nil
 	}
 
-	target = strings.TrimSpace(matches[1])
-	status = Status(matches[2])
+	result := &TargetResult{}
+	result.Name = strings.TrimSpace(matches[1])
+	result.Status = Status(matches[2])
 
-	return true, target, false, status, 0, nil
+	return result, nil
 }
 
 func parseDuration(durationStr string) (time.Duration, error) {

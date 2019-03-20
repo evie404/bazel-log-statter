@@ -12,23 +12,22 @@ func TestParseLine(t *testing.T) {
 		line string
 	}
 	tests := []struct {
-		name         string
-		args         args
-		wantTarget   string
-		wantCached   bool
-		wantStatus   Status
-		wantDuration time.Duration
-		wantErr      error
+		name    string
+		args    args
+		want    *TargetResult
+		wantErr error
 	}{
 		{
 			"cached passed line",
 			args{
 				"//admin/server:go_default_test                                  (cached) PASSED in 0.3s",
 			},
-			"//admin/server:go_default_test",
-			true,
-			StatusPassed,
-			300 * time.Millisecond,
+			&TargetResult{
+				Name:     "//admin/server:go_default_test",
+				Cached:   true,
+				Status:   StatusPassed,
+				Duration: 300 * time.Millisecond,
+			},
 			nil,
 		},
 		{
@@ -36,10 +35,10 @@ func TestParseLine(t *testing.T) {
 			args{
 				"//summons/integration:go_default_test                                 NO STATUS",
 			},
-			"//summons/integration:go_default_test",
-			false,
-			StatusNoStatus,
-			0,
+			&TargetResult{
+				Name:   "//summons/integration:go_default_test",
+				Status: StatusNoStatus,
+			},
 			nil,
 		},
 		{
@@ -47,22 +46,20 @@ func TestParseLine(t *testing.T) {
 			args{
 				"//social-graph/worker:go_default_test                                    PASSED in 53.8s",
 			},
-			"//social-graph/worker:go_default_test",
-			false,
-			StatusPassed,
-			53800 * time.Millisecond,
+			&TargetResult{
+				Name:     "//social-graph/worker:go_default_test",
+				Status:   StatusPassed,
+				Duration: 53800 * time.Millisecond,
+			},
 			nil,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotTarget, gotCached, gotStatus, gotDuration, gotErr := ParseLine(tt.args.line)
+			got, err := ParseLine(tt.args.line)
 
-			assert.Equal(t, tt.wantTarget, gotTarget)
-			assert.Equal(t, tt.wantCached, gotCached)
-			assert.Equal(t, string(tt.wantStatus), string(gotStatus))
-			assert.Equal(t, tt.wantDuration, gotDuration)
-			assert.Equal(t, tt.wantErr, gotErr)
+			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.wantErr, err)
 		})
 	}
 }
