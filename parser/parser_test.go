@@ -53,6 +53,20 @@ func TestParseLine(t *testing.T) {
 			},
 			nil,
 		},
+		{
+			"flaky line",
+			args{
+				"//autobahn/stream:go_default_test                                         FLAKY, failed in 1 out of 2 in 13.5s",
+			},
+			&TargetResult{
+				Name:      "//autobahn/stream:go_default_test",
+				Status:    StatusFlaky,
+				Duration:  13500 * time.Millisecond,
+				Successes: 1,
+				Attempts:  2,
+			},
+			nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
