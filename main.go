@@ -126,10 +126,10 @@ func main() {
 			continue
 		}
 
-		spaces := stringPadding(aggregate.TargetName, longestNameLen+1)
+		spaces := stringPadding(aggregate.TargetName, longestNameLen)
 		triesSpaces := stringPadding(strconv.Itoa(aggregate.Total), longestTriesLen)
 
-		fmt.Printf("%s%.2f%% success in %v%v tries %v\n", aggregate.TargetName+spaces, aggregate.SuccessRatio(), triesSpaces, aggregate.Total, aggregate.AverageDuration())
+		fmt.Printf("%s %s success in %v%v tries %v\n", aggregate.TargetName+spaces, aggregate.SuccessRatioString(), triesSpaces, aggregate.Total, aggregate.AverageDuration())
 	}
 }
 
@@ -174,6 +174,13 @@ func (a *AggregateResult) AllSuccesses() bool {
 
 func (a *AggregateResult) SuccessRatio() float64 {
 	return float64(a.Successes*100) / float64(a.Total)
+}
+
+func (a *AggregateResult) SuccessRatioString() string {
+	if a.Successes == a.Total {
+		return "100.00%"
+	}
+	return fmt.Sprintf(" %.2f%%", a.SuccessRatio())
 }
 
 func (a *AggregateResult) AverageDuration() time.Duration {
