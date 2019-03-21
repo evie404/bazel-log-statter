@@ -124,9 +124,5 @@ func noStatusMatches(line string) (*bazel.TargetResult, error) {
 }
 
 func parseDuration(durationStr string) (time.Duration, error) {
-	durationF, err := strconv.ParseFloat(durationStr, 64)
-	if err != nil {
-		return 0, err
-	}
-	return time.Duration(durationF * float64(time.Second)), nil
+	return time.ParseDuration(durationStr + "s")
 }

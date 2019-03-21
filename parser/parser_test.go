@@ -78,3 +78,47 @@ func TestParseLine(t *testing.T) {
 		})
 	}
 }
+
+func Test_parseDuration(t *testing.T) {
+	type args struct {
+		durationStr string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    time.Duration
+		wantErr error
+	}{
+		{
+			"4.1",
+			args{
+				"4.1",
+			},
+			4100 * time.Millisecond,
+			nil,
+		},
+		{
+			"0.2",
+			args{
+				"0.2",
+			},
+			200 * time.Millisecond,
+			nil,
+		},
+		{
+			"0.0",
+			args{
+				"0.0",
+			},
+			0,
+			nil,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := parseDuration(tt.args.durationStr)
+			assert.Equal(t, tt.want, got)
+			assert.Equal(t, tt.wantErr, err)
+		})
+	}
+}
