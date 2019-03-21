@@ -11,20 +11,35 @@ import (
 )
 
 func main() {
-	results := parseFile(22141)
+	startBuild := 21000
+	endBuild := 22227
+	builds := endBuild - startBuild + 1
 
-	for _, result := range results {
-		fmt.Printf("%+v\n", result)
+	allResults := make([][]*bazel.TargetResult, builds+1)
+
+	for i := startBuild; i <= endBuild; i++ {
+		// go func(i int) {
+		var parseErr error
+		println(i)
+		allResults[i-startBuild], parseErr = parseFile(i)
+		if parseErr != nil {
+			println(parseErr)
+		}
+		// }(i)
 	}
 
-	println("done")
+	for _, results := range allResults {
+		for _, result := range results {
+			fmt.Printf("%+v\n", result)
+		}
+	}
 }
 
-func parseFile(id int) []*bazel.TargetResult {
+func parseFile(id int) ([]*bazel.TargetResult, error) {
 	f, err := os.Open(buildFilePath(id))
 	defer f.Close()
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	scanner := bufio.NewScanner(f)
@@ -39,7 +54,7 @@ func parseFile(id int) []*bazel.TargetResult {
 		}
 	}
 
-	return results
+	return results, nil
 }
 
 func buildFilePath(id int) string {
