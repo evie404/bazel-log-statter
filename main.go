@@ -64,34 +64,53 @@ func main() {
 	}
 
 	for targetName, results := range targetResults {
-		var successes, failures, total int
-		var totalDuration time.Duration
+		aggregate := &AggregateResult{
+			TargetName: targetName,
+		}
 
 		for _, result := range results {
 			switch result.Status {
 			case bazel.StatusFailed:
-				failures += 1
-				total += 1
-				totalDuration += result.Duration
+				aggregate.Failures += 1
+				aggregate.Total += 1
+				aggregate.TotalDuration += result.Duration
 			case bazel.StatusPassed:
-				successes += 1
-				total += 1
-				totalDuration += result.Duration
+				aggregate.Successes += 1
+				aggregate.Total += 1
+				aggregate.TotalDuration += result.Duration
 			case bazel.StatusFlaky:
-				successes += result.Successes
-				failures += (result.Attempts - result.Successes)
-				total += result.Attempts
-				totalDuration += result.Duration
+				aggregate.Successes += result.Successes
+				aggregate.Failures += (result.Attempts - result.Successes)
+				aggregate.Total += result.Attempts
+				aggregate.TotalDuration += result.Duration
 			}
 		}
 
-		if successes < total {
-			successRatio := float64(successes) / float64(total)
-			avgDuration := time.Duration(float64(totalDuration) / float64(total))
-
-			fmt.Printf("%s: %v success %v\n", targetName, successRatio, avgDuration)
+		if !aggregate.AllSuccesses() {
+			fmt.Printf("%s: %.2f%% success %v\n", aggregate.TargetName, aggregate.SuccessRatio(), aggregate.AverageDuration())
 		}
 	}
+}
+
+type AggregateResult struct {
+	TargetName    string
+	Targets       []*bazel.TargetResult
+	Total         int
+	Successes     int
+	Failures      int
+	TotalDuration time.Duration
+}
+
+func (a *AggregateResult) AllSuccesses() bool {
+	return a.Successes == a.Total
+}
+
+func (a *AggregateResult) SuccessRatio() float64 {
+	return float64(a.Successes*100) / float64(a.Total)
+}
+
+func (a *AggregateResult) AverageDuration() time.Duration {
+	return time.Duration(float64(a.TotalDuration) / float64(a.Total))
 }
 
 func parseFile(id int) ([]*bazel.TargetResult, error) {
