@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -64,9 +65,21 @@ func main() {
 		}
 	}
 
+	targetNames := make([]string, 0, len(targetResults))
+	longestNameLen := 0
+
+	for targetName, aggregate := range targetResults {
+		targetNames = append(targetNames, targetName)
+		if !aggregate.AllSuccesses() && len(targetName) > longestNameLen {
+			longestNameLen = len(targetName)
+		}
+	}
+
 	for _, aggregate := range targetResults {
 		if !aggregate.AllSuccesses() {
-			fmt.Printf("%s: %.2f%% success %v\n", aggregate.TargetName, aggregate.SuccessRatio(), aggregate.AverageDuration())
+			spaces := strings.Join(make([]string, 2+longestNameLen-len(aggregate.TargetName)), " ")
+
+			fmt.Printf("%s%.2f%% success %v\n", aggregate.TargetName+spaces, aggregate.SuccessRatio(), aggregate.AverageDuration())
 		}
 	}
 }
