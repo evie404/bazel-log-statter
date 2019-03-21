@@ -12,7 +12,7 @@ import (
 func main() {
 	parseFile(22141)
 
-	println("lol")
+	println("done")
 }
 
 func parseFile(id int) {
