@@ -68,6 +68,18 @@ func TestParseLine(t *testing.T) {
 			},
 			nil,
 		},
+		{
+			"failed line",
+			args{
+				"//subscription/worker-notification/consumer:go_default_test              FAILED in 30.9s",
+			},
+			&bazel.TargetResult{
+				Name:     "//subscription/worker-notification/consumer:go_default_test",
+				Status:   bazel.StatusFailed,
+				Duration: 30900 * time.Millisecond,
+			},
+			nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

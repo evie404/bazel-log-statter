@@ -9,6 +9,7 @@ const (
 	StatusPassed   Status = "PASSED"
 	StatusUnknown  Status = "UNKNOWN"
 	StatusFlaky    Status = "FLAKY"
+	StatusFailed   Status = "FAILED"
 )
 
 type TargetResult struct {
