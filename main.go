@@ -19,10 +19,13 @@ import (
 func main() {
 	var startBuild, endBuild int
 	var sortMethod string
+	var ignoreCached bool
 
 	flag.IntVar(&startBuild, "start", 0, "start")
 	flag.IntVar(&endBuild, "end", 0, "end")
 	flag.StringVar(&sortMethod, "sort", "name", "sort")
+	flag.BoolVar(&ignoreCached, "ignore-cached", false, "ignore-cached")
+
 	flag.Parse()
 
 	if startBuild == 0 {
@@ -60,6 +63,10 @@ func main() {
 
 	for _, results := range allResults {
 		for _, result := range results {
+			if ignoreCached && result.Cached {
+				continue
+			}
+
 			if _, found := targetResults[result.Name]; !found {
 				targetResults[result.Name] = &AggregateResult{
 					TargetName: result.Name,
