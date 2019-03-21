@@ -113,7 +113,7 @@ func main() {
 
 		if !aggregate.AllSuccesses() {
 			spaces := strings.Join(make([]string, 2+longestNameLen-len(aggregate.TargetName)), " ")
-			triesSpaces := strings.Join(make([]string, 2+longestTriesLen-len(strconv.Itoa(aggregate.Total))), " ")
+			triesSpaces := strings.Join(make([]string, 1+longestTriesLen-len(strconv.Itoa(aggregate.Total))), " ")
 
 			fmt.Printf("%s%.2f%% success in %v%v tries %v\n", aggregate.TargetName+spaces, aggregate.SuccessRatio(), triesSpaces, aggregate.Total, aggregate.AverageDuration())
 		}
