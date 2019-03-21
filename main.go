@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sync"
 	"time"
 
 	"github.com/rickypai/bazel-log-statter/bazel"
@@ -18,16 +19,24 @@ func main() {
 
 	allResults := make([][]*bazel.TargetResult, builds+1)
 
+	var wg sync.WaitGroup
+
 	for i := startBuild; i <= endBuild; i++ {
-		// go func(i int) {
-		var parseErr error
-		println(i)
-		allResults[i-startBuild], parseErr = parseFile(i)
-		if parseErr != nil {
-			println(parseErr)
-		}
-		// }(i)
+		wg.Add(1)
+
+		go func(fileNum, index int) {
+			defer wg.Done()
+
+			var parseErr error
+			println(fileNum)
+			allResults[index], parseErr = parseFile(fileNum)
+			if parseErr != nil {
+				println(parseErr)
+			}
+		}(i, i-startBuild)
 	}
+
+	wg.Wait()
 
 	targetResults := map[string][]*bazel.TargetResult{}
 
