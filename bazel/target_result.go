@@ -12,10 +12,10 @@ const (
 )
 
 type TargetResult struct {
-	Name   string
-	Cached bool
-	Status
-	time.Duration
+	Name     string
+	Cached   bool
+	Status   Status
+	Duration time.Duration
 
 	// flaky test attempts
 	Successes int
