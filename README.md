@@ -1,4 +1,4 @@
-# blogs
+# bazel-log-statter
 
 ## Minikube
 

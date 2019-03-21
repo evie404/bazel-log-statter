@@ -1,4 +1,4 @@
-PROJECT := blogs
+PROJECT := bazel-log-statter
 
 .PHONY: default build buildifier
 

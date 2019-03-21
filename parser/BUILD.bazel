@@ -3,7 +3,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 go_library(
     name = "go_default_library",
     srcs = ["parser.go"],
-    importpath = "github.com/rickypai/blogs/parser",
+    importpath = "github.com/rickypai/bazel-log-statter/parser",
     visibility = ["//visibility:public"],
 )
 

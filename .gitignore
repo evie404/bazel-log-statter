@@ -17,4 +17,4 @@
 /bazel-*
 
 # Built-Binaries
-/blogs
+/bazel-log-statter

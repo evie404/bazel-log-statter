@@ -25,12 +25,12 @@ goimports(
 go_library(
     name = "go_default_library",
     srcs = ["main.go"],
-    importpath = "github.com/rickypai/blogs",
+    importpath = "github.com/rickypai/bazel-log-statter",
     visibility = ["//visibility:private"],
 )
 
 go_binary(
-    name = "blogs",
+    name = "bazel-log-statter",
     embed = [":go_default_library"],
     visibility = ["//visibility:public"],
 )
