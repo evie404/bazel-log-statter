@@ -27,6 +27,7 @@ go_library(
     srcs = ["main.go"],
     importpath = "github.com/rickypai/bazel-log-statter",
     visibility = ["//visibility:private"],
+    deps = ["//parser:go_default_library"],
 )
 
 go_binary(

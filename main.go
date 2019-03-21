@@ -2,8 +2,11 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/rickypai/bazel-log-statter/parser"
 )
 
 func main() {
@@ -15,7 +18,11 @@ func main() {
 
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
-		println(scanner.Text())
+		result, _ := parser.ParseLine(scanner.Text())
+
+		if result != nil {
+			fmt.Printf("%+v\n", result)
+		}
 	}
 
 	println("lol")
