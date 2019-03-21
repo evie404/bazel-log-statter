@@ -28,7 +28,7 @@ func main() {
 			defer wg.Done()
 
 			var parseErr error
-			println(fileNum)
+			// println(fileNum)
 			allResults[index], parseErr = parseFile(fileNum)
 			if parseErr != nil {
 				println(parseErr)
