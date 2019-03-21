@@ -51,27 +51,20 @@ func main() {
 
 	wg.Wait()
 
-	targetResults := map[string][]*bazel.TargetResult{}
+	targetResults := map[string]*AggregateResult{}
 
 	for _, results := range allResults {
 		for _, result := range results {
 			if _, found := targetResults[result.Name]; !found {
-				targetResults[result.Name] = []*bazel.TargetResult{}
+				targetResults[result.Name] = &AggregateResult{
+					TargetName: result.Name,
+				}
 			}
-
-			targetResults[result.Name] = append(targetResults[result.Name], result)
+			targetResults[result.Name].AddResult(result)
 		}
 	}
 
-	for targetName, results := range targetResults {
-		aggregate := &AggregateResult{
-			TargetName: targetName,
-		}
-
-		for _, result := range results {
-			aggregate.AddResult(result)
-		}
-
+	for _, aggregate := range targetResults {
 		if !aggregate.AllSuccesses() {
 			fmt.Printf("%s: %.2f%% success %v\n", aggregate.TargetName, aggregate.SuccessRatio(), aggregate.AverageDuration())
 		}
