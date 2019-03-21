@@ -126,11 +126,19 @@ func main() {
 			continue
 		}
 
-		spaces := strings.Join(make([]string, 2+longestNameLen-len(aggregate.TargetName)), " ")
-		triesSpaces := strings.Join(make([]string, 1+longestTriesLen-len(strconv.Itoa(aggregate.Total))), " ")
+		spaces := stringPadding(aggregate.TargetName, longestNameLen+1)
+		triesSpaces := stringPadding(strconv.Itoa(aggregate.Total), longestTriesLen)
 
 		fmt.Printf("%s%.2f%% success in %v%v tries %v\n", aggregate.TargetName+spaces, aggregate.SuccessRatio(), triesSpaces, aggregate.Total, aggregate.AverageDuration())
 	}
+}
+
+func stringPadding(str string, longestLen int) string {
+	return stringPaddingLen(len(str), longestLen)
+}
+
+func stringPaddingLen(currentLen, longestLen int) string {
+	return strings.Join(make([]string, 1+longestLen-currentLen), " ")
 }
 
 type AggregateResult struct {
