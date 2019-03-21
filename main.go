@@ -10,7 +10,13 @@ import (
 )
 
 func main() {
-	f, err := os.Open(buildFilePath(22141))
+	parseFile(22141)
+
+	println("lol")
+}
+
+func parseFile(id int) {
+	f, err := os.Open(buildFilePath(id))
 	defer f.Close()
 	if err != nil {
 		panic(err)
@@ -24,8 +30,6 @@ func main() {
 			fmt.Printf("%+v\n", result)
 		}
 	}
-
-	println("lol")
 }
 
 func buildFilePath(id int) string {
