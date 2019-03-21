@@ -89,6 +89,14 @@ func main() {
 	switch sortMethod {
 	case "name":
 		sort.Strings(targetNames)
+	case "failures":
+		sort.Slice(targetNames, func(i, j int) bool {
+			return targetResults[targetNames[i]].SuccessRatio() < targetResults[targetNames[j]].SuccessRatio()
+		})
+	case "successes":
+		sort.Slice(targetNames, func(i, j int) bool {
+			return targetResults[targetNames[i]].SuccessRatio() > targetResults[targetNames[j]].SuccessRatio()
+		})
 	default:
 		sort.Strings(targetNames)
 	}
