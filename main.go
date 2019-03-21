@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/rickypai/bazel-log-statter/bazel"
 	"github.com/rickypai/bazel-log-statter/parser"
@@ -28,9 +29,45 @@ func main() {
 		// }(i)
 	}
 
+	targetResults := map[string][]*bazel.TargetResult{}
+
 	for _, results := range allResults {
 		for _, result := range results {
-			fmt.Printf("%+v\n", result)
+			if _, found := targetResults[result.Name]; !found {
+				targetResults[result.Name] = []*bazel.TargetResult{}
+			}
+
+			targetResults[result.Name] = append(targetResults[result.Name], result)
+		}
+	}
+
+	for targetName, results := range targetResults {
+		var successes, failures, total int
+		var totalDuration time.Duration
+
+		for _, result := range results {
+			switch result.Status {
+			case bazel.StatusFailed:
+				failures += 1
+				total += 1
+				totalDuration += result.Duration
+			case bazel.StatusPassed:
+				successes += 1
+				total += 1
+				totalDuration += result.Duration
+			case bazel.StatusFlaky:
+				successes += result.Successes
+				failures += (result.Attempts - result.Successes)
+				total += result.Attempts
+				totalDuration += result.Duration
+			}
+		}
+
+		if successes < total {
+			successRatio := float64(successes) / float64(total)
+			avgDuration := time.Duration(float64(totalDuration) / float64(total))
+
+			fmt.Printf("%s: %v success %v\n", targetName, successRatio, avgDuration)
 		}
 	}
 }
