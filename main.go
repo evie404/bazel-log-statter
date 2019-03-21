@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -75,7 +76,11 @@ func main() {
 		}
 	}
 
-	for _, aggregate := range targetResults {
+	sort.Strings(targetNames)
+
+	for _, targetName := range targetNames {
+		aggregate := targetResults[targetName]
+
 		if !aggregate.AllSuccesses() {
 			spaces := strings.Join(make([]string, 2+longestNameLen-len(aggregate.TargetName)), " ")
 
