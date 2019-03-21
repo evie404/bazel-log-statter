@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -13,8 +14,20 @@ import (
 )
 
 func main() {
-	startBuild := 21000
-	endBuild := 22227
+	var startBuild, endBuild int
+
+	flag.IntVar(&startBuild, "start", 0, "start")
+	flag.IntVar(&endBuild, "end", 0, "end")
+	flag.Parse()
+
+	if startBuild == 0 {
+		panic("-start flag required")
+	}
+
+	if endBuild == 0 {
+		panic("-end flag required")
+	}
+
 	builds := endBuild - startBuild + 1
 
 	allResults := make([][]*bazel.TargetResult, builds+1)
