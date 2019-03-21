@@ -104,6 +104,14 @@ func main() {
 		sort.Slice(targetNames, func(i, j int) bool {
 			return targetResults[targetNames[i]].SuccessRatio() > targetResults[targetNames[j]].SuccessRatio()
 		})
+	case "longest":
+		sort.Slice(targetNames, func(i, j int) bool {
+			return targetResults[targetNames[i]].AverageDuration() > targetResults[targetNames[j]].AverageDuration()
+		})
+	case "shortest":
+		sort.Slice(targetNames, func(i, j int) bool {
+			return targetResults[targetNames[i]].AverageDuration() < targetResults[targetNames[j]].AverageDuration()
+		})
 	default:
 		sort.Strings(targetNames)
 	}
