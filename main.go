@@ -18,9 +18,11 @@ import (
 
 func main() {
 	var startBuild, endBuild int
+	var sortMethod string
 
 	flag.IntVar(&startBuild, "start", 0, "start")
 	flag.IntVar(&endBuild, "end", 0, "end")
+	flag.StringVar(&sortMethod, "sort", "name", "sort")
 	flag.Parse()
 
 	if startBuild == 0 {
@@ -84,7 +86,12 @@ func main() {
 		}
 	}
 
-	sort.Strings(targetNames)
+	switch sortMethod {
+	case "name":
+		sort.Strings(targetNames)
+	default:
+		sort.Strings(targetNames)
+	}
 
 	for _, targetName := range targetNames {
 		aggregate := targetResults[targetName]
