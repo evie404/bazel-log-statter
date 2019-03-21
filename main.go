@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-	f, err := os.Open(filepath.Join("/Users/ricky/workspace/godel-logs", "22141.txt"))
+	f, err := os.Open(buildFilePath(22141))
 	defer f.Close()
 	if err != nil {
 		panic(err)
@@ -26,4 +26,8 @@ func main() {
 	}
 
 	println("lol")
+}
+
+func buildFilePath(id int) string {
+	return filepath.Join("/Users/ricky/workspace/godel-logs", fmt.Sprintf("%v.txt", id))
 }
