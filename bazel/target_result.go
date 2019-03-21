@@ -19,6 +19,7 @@ type TargetResult struct {
 	Duration time.Duration
 
 	// flaky test attempts
-	Successes int
-	Attempts  int
+	Successes   int
+	Attempts    int
+	CachedTimes int
 }

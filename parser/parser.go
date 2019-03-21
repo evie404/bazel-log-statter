@@ -10,10 +10,11 @@ import (
 )
 
 var (
-	cachedLineRegex   = regexp.MustCompile(`(?P<target>\/\/.+)\s+(?P<cached>\(cached\))\s+(?P<status>PASSED)\s+in\s+(?P<duration>.+)s`)
-	uncachedLineRegex = regexp.MustCompile(`(?P<target>\/\/.+)\s+(?P<status>PASSED|FAILED)\s+in\s+(?P<duration>.+)s`)
-	noStatusLineRegex = regexp.MustCompile(`(?P<target>\/\/.+)\s+(?P<status>NO\sSTATUS)`)
-	flakyLineRegex    = regexp.MustCompile(`(?P<target>\/\/.+)\s+(?P<status>FLAKY),\sfailed\sin\s(?P<success>\d+)\sout\sof\s(?P<tries>\d+)\sin\s+(?P<duration>.+)s`)
+	cachedLineRegex      = regexp.MustCompile(`(?P<target>\/\/.+)\s+(?P<cached>\(cached\))\s+(?P<status>PASSED)\s+in\s+(?P<duration>.+)s`)
+	uncachedLineRegex    = regexp.MustCompile(`(?P<target>\/\/.+)\s+(?P<status>PASSED|FAILED)\s+in\s+(?P<duration>.+)s`)
+	noStatusLineRegex    = regexp.MustCompile(`(?P<target>\/\/.+)\s+(?P<status>NO\sSTATUS)`)
+	flakyLineRegex       = regexp.MustCompile(`(?P<target>\/\/.+)\s+(?P<status>FLAKY),\sfailed\sin\s(?P<success>\d+)\sout\sof\s(?P<tries>\d+)\sin\s+(?P<duration>.+)s`)
+	flakyCachedLineRegex = regexp.MustCompile(`(?P<target>\/\/.+)\s+\((?P<cached>\d)\/\d\scached\)\s+(?P<status>FLAKY),\sfailed\sin\s(?P<success>\d+)\sout\sof\s(?P<tries>\d+)\sin\s+(?P<duration>.+)s`)
 )
 
 func ParseLine(line string) (result *bazel.TargetResult, err error) {
@@ -28,6 +29,11 @@ func ParseLine(line string) (result *bazel.TargetResult, err error) {
 	}
 
 	result, err = noStatusMatches(line)
+	if result != nil {
+		return
+	}
+
+	result, err = flakyCachedMatches(line)
 	if result != nil {
 		return
 	}
@@ -54,6 +60,38 @@ func cachedMatches(line string) (*bazel.TargetResult, error) {
 	result.Cached = matches[2] == "(cached)"
 	result.Status = bazel.Status(matches[3])
 	result.Duration, err = parseDuration(matches[4])
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func flakyCachedMatches(line string) (*bazel.TargetResult, error) {
+	var err error
+
+	matches := flakyCachedLineRegex.FindStringSubmatch(line)
+
+	if len(matches) == 0 {
+		return nil, nil
+	}
+
+	result := &bazel.TargetResult{}
+	result.Name = strings.TrimSpace(matches[1])
+	result.CachedTimes, err = strconv.Atoi(matches[2])
+	if err != nil {
+		return nil, err
+	}
+	result.Status = bazel.Status(matches[3])
+	result.Successes, err = strconv.Atoi(matches[4])
+	if err != nil {
+		return nil, err
+	}
+	result.Attempts, err = strconv.Atoi(matches[5])
+	if err != nil {
+		return nil, err
+	}
+	result.Duration, err = parseDuration(matches[6])
 	if err != nil {
 		return nil, err
 	}

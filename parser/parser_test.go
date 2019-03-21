@@ -80,18 +80,21 @@ func TestParseLine(t *testing.T) {
 			},
 			nil,
 		},
-		// {
-		// 	"flaky line with cached",
-		// 	args{
-		// 		"//autobahn/stream:go_default_test                            (1/2 cached) FLAKY, failed in 1 out of 2 in 14.9s",
-		// 	},
-		// 	&bazel.TargetResult{
-		// 		Name:     "//autobahn/stream:go_default_test",
-		// 		Status:   bazel.StatusFailed,
-		// 		Duration: 30900 * time.Millisecond,
-		// 	},
-		// 	nil,
-		// },
+		{
+			"flaky line with cached",
+			args{
+				"//autobahn/stream:go_default_test                            (1/2 cached) FLAKY, failed in 1 out of 2 in 14.9s",
+			},
+			&bazel.TargetResult{
+				Name:        "//autobahn/stream:go_default_test",
+				Status:      bazel.StatusFlaky,
+				Duration:    14900 * time.Millisecond,
+				CachedTimes: 1,
+				Attempts:    2,
+				Successes:   1,
+			},
+			nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
