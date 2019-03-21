@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -68,11 +69,18 @@ func main() {
 
 	targetNames := make([]string, 0, len(targetResults))
 	longestNameLen := 0
+	longestTriesLen := 0
 
 	for targetName, aggregate := range targetResults {
 		targetNames = append(targetNames, targetName)
-		if !aggregate.AllSuccesses() && len(targetName) > longestNameLen {
-			longestNameLen = len(targetName)
+		if !aggregate.AllSuccesses() {
+			if len(targetName) > longestNameLen {
+				longestNameLen = len(targetName)
+			}
+
+			if len(strconv.Itoa(aggregate.Total)) > longestTriesLen {
+				longestTriesLen = len(strconv.Itoa(aggregate.Total))
+			}
 		}
 	}
 
@@ -83,8 +91,9 @@ func main() {
 
 		if !aggregate.AllSuccesses() {
 			spaces := strings.Join(make([]string, 2+longestNameLen-len(aggregate.TargetName)), " ")
+			triesSpaces := strings.Join(make([]string, 2+longestTriesLen-len(strconv.Itoa(aggregate.Total))), " ")
 
-			fmt.Printf("%s%.2f%% success %v\n", aggregate.TargetName+spaces, aggregate.SuccessRatio(), aggregate.AverageDuration())
+			fmt.Printf("%s%.2f%% success in %v%v tries %v\n", aggregate.TargetName+spaces, aggregate.SuccessRatio(), triesSpaces, aggregate.Total, aggregate.AverageDuration())
 		}
 	}
 }
