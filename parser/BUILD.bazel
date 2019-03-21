@@ -5,6 +5,7 @@ go_library(
     srcs = ["parser.go"],
     importpath = "github.com/rickypai/bazel-log-statter/parser",
     visibility = ["//visibility:public"],
+    deps = ["//bazel:go_default_library"],
 )
 
 go_test(

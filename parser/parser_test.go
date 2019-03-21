@@ -4,6 +4,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/rickypai/bazel-log-statter/bazel"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,7 +15,7 @@ func TestParseLine(t *testing.T) {
 	tests := []struct {
 		name    string
 		args    args
-		want    *TargetResult
+		want    *bazel.TargetResult
 		wantErr error
 	}{
 		{
@@ -22,10 +23,10 @@ func TestParseLine(t *testing.T) {
 			args{
 				"//admin/server:go_default_test                                  (cached) PASSED in 0.3s",
 			},
-			&TargetResult{
+			&bazel.TargetResult{
 				Name:     "//admin/server:go_default_test",
 				Cached:   true,
-				Status:   StatusPassed,
+				Status:   bazel.StatusPassed,
 				Duration: 300 * time.Millisecond,
 			},
 			nil,
@@ -35,9 +36,9 @@ func TestParseLine(t *testing.T) {
 			args{
 				"//summons/integration:go_default_test                                 NO STATUS",
 			},
-			&TargetResult{
+			&bazel.TargetResult{
 				Name:   "//summons/integration:go_default_test",
-				Status: StatusNoStatus,
+				Status: bazel.StatusNoStatus,
 			},
 			nil,
 		},
@@ -46,9 +47,9 @@ func TestParseLine(t *testing.T) {
 			args{
 				"//social-graph/worker:go_default_test                                    PASSED in 53.8s",
 			},
-			&TargetResult{
+			&bazel.TargetResult{
 				Name:     "//social-graph/worker:go_default_test",
-				Status:   StatusPassed,
+				Status:   bazel.StatusPassed,
 				Duration: 53800 * time.Millisecond,
 			},
 			nil,
@@ -58,9 +59,9 @@ func TestParseLine(t *testing.T) {
 			args{
 				"//autobahn/stream:go_default_test                                         FLAKY, failed in 1 out of 2 in 13.5s",
 			},
-			&TargetResult{
+			&bazel.TargetResult{
 				Name:      "//autobahn/stream:go_default_test",
-				Status:    StatusFlaky,
+				Status:    bazel.StatusFlaky,
 				Duration:  13500 * time.Millisecond,
 				Successes: 1,
 				Attempts:  2,
