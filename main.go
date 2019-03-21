@@ -19,12 +19,13 @@ import (
 func main() {
 	var startBuild, endBuild int
 	var sortMethod string
-	var ignoreCached bool
+	var ignoreCached, includeSuccess bool
 
 	flag.IntVar(&startBuild, "start", 0, "start")
 	flag.IntVar(&endBuild, "end", 0, "end")
 	flag.StringVar(&sortMethod, "sort", "name", "sort")
 	flag.BoolVar(&ignoreCached, "ignore-cached", false, "ignore-cached")
+	flag.BoolVar(&includeSuccess, "include-success", false, "include-success")
 
 	flag.Parse()
 
@@ -82,14 +83,16 @@ func main() {
 
 	for targetName, aggregate := range targetResults {
 		targetNames = append(targetNames, targetName)
-		if !aggregate.AllSuccesses() {
-			if len(targetName) > longestNameLen {
-				longestNameLen = len(targetName)
-			}
+		if !includeSuccess && aggregate.AllSuccesses() {
+			continue
+		}
 
-			if len(strconv.Itoa(aggregate.Total)) > longestTriesLen {
-				longestTriesLen = len(strconv.Itoa(aggregate.Total))
-			}
+		if len(targetName) > longestNameLen {
+			longestNameLen = len(targetName)
+		}
+
+		if len(strconv.Itoa(aggregate.Total)) > longestTriesLen {
+			longestTriesLen = len(strconv.Itoa(aggregate.Total))
 		}
 	}
 
@@ -119,12 +122,14 @@ func main() {
 	for _, targetName := range targetNames {
 		aggregate := targetResults[targetName]
 
-		if !aggregate.AllSuccesses() {
-			spaces := strings.Join(make([]string, 2+longestNameLen-len(aggregate.TargetName)), " ")
-			triesSpaces := strings.Join(make([]string, 1+longestTriesLen-len(strconv.Itoa(aggregate.Total))), " ")
-
-			fmt.Printf("%s%.2f%% success in %v%v tries %v\n", aggregate.TargetName+spaces, aggregate.SuccessRatio(), triesSpaces, aggregate.Total, aggregate.AverageDuration())
+		if !includeSuccess && aggregate.AllSuccesses() {
+			continue
 		}
+
+		spaces := strings.Join(make([]string, 2+longestNameLen-len(aggregate.TargetName)), " ")
+		triesSpaces := strings.Join(make([]string, 1+longestTriesLen-len(strconv.Itoa(aggregate.Total))), " ")
+
+		fmt.Printf("%s%.2f%% success in %v%v tries %v\n", aggregate.TargetName+spaces, aggregate.SuccessRatio(), triesSpaces, aggregate.Total, aggregate.AverageDuration())
 	}
 }
 
