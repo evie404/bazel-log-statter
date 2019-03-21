@@ -69,21 +69,7 @@ func main() {
 		}
 
 		for _, result := range results {
-			switch result.Status {
-			case bazel.StatusFailed:
-				aggregate.Failures += 1
-				aggregate.Total += 1
-				aggregate.TotalDuration += result.Duration
-			case bazel.StatusPassed:
-				aggregate.Successes += 1
-				aggregate.Total += 1
-				aggregate.TotalDuration += result.Duration
-			case bazel.StatusFlaky:
-				aggregate.Successes += result.Successes
-				aggregate.Failures += (result.Attempts - result.Successes)
-				aggregate.Total += result.Attempts
-				aggregate.TotalDuration += result.Duration
-			}
+			aggregate.AddResult(result)
 		}
 
 		if !aggregate.AllSuccesses() {
@@ -99,6 +85,24 @@ type AggregateResult struct {
 	Successes     int
 	Failures      int
 	TotalDuration time.Duration
+}
+
+func (a *AggregateResult) AddResult(result *bazel.TargetResult) {
+	switch result.Status {
+	case bazel.StatusFailed:
+		a.Failures += 1
+		a.Total += 1
+		a.TotalDuration += result.Duration
+	case bazel.StatusPassed:
+		a.Successes += 1
+		a.Total += 1
+		a.TotalDuration += result.Duration
+	case bazel.StatusFlaky:
+		a.Successes += result.Successes
+		a.Failures += (result.Attempts - result.Successes)
+		a.Total += result.Attempts
+		a.TotalDuration += result.Duration
+	}
 }
 
 func (a *AggregateResult) AllSuccesses() bool {
