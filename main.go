@@ -6,16 +6,21 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/rickypai/bazel-log-statter/bazel"
 	"github.com/rickypai/bazel-log-statter/parser"
 )
 
 func main() {
-	parseFile(22141)
+	results := parseFile(22141)
+
+	for _, result := range results {
+		fmt.Printf("%+v\n", result)
+	}
 
 	println("done")
 }
 
-func parseFile(id int) {
+func parseFile(id int) []*bazel.TargetResult {
 	f, err := os.Open(buildFilePath(id))
 	defer f.Close()
 	if err != nil {
@@ -23,13 +28,18 @@ func parseFile(id int) {
 	}
 
 	scanner := bufio.NewScanner(f)
+
+	results := make([]*bazel.TargetResult, 0)
+
 	for scanner.Scan() {
 		result, _ := parser.ParseLine(scanner.Text())
 
 		if result != nil {
-			fmt.Printf("%+v\n", result)
+			results = append(results, result)
 		}
 	}
+
+	return results
 }
 
 func buildFilePath(id int) string {
