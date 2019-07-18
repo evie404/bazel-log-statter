@@ -126,6 +126,10 @@ func main() {
 			continue
 		}
 
+		if aggregate.Total == 0 {
+			continue
+		}
+
 		spaces := stringPadding(aggregate.TargetName, longestNameLen)
 		triesSpaces := stringPadding(strconv.Itoa(aggregate.Total), longestTriesLen)
 
@@ -151,6 +155,10 @@ type AggregateResult struct {
 }
 
 func (a *AggregateResult) AddResult(result *bazel.TargetResult) {
+	if result.Status == bazel.StatusNoStatus || result.Status == bazel.StatusUnknown {
+		return
+	}
+
 	a.Successes += result.Successes
 	a.Failures += (result.Attempts - result.Successes)
 	a.Total += result.Attempts
