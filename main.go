@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -53,7 +54,7 @@ func main() {
 			// println(fileNum)
 			allResults[index], parseErr = parseFile(fileNum)
 			if parseErr != nil {
-				println(parseErr)
+				log.Println(parseErr)
 			}
 		}(i, i-startBuild)
 	}
