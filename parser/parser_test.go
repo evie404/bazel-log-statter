@@ -81,6 +81,21 @@ func TestParseLine(t *testing.T) {
 			nil,
 		},
 		{
+			"flaky failed line",
+			args{
+				"//media/consumer:go_default_test                                         FAILED in 3 out of 3 in 10.5s",
+			},
+			&bazel.TargetResult{
+				Name:        "//media/consumer:go_default_test",
+				Status:      bazel.StatusFailed,
+				Duration:    10500 * time.Millisecond,
+				CachedTimes: 0,
+				Attempts:    3,
+				Successes:   0,
+			},
+			nil,
+		},
+		{
 			"flaky line with cached",
 			args{
 				"//autobahn/stream:go_default_test                            (1/2 cached) FLAKY, failed in 1 out of 2 in 14.9s",

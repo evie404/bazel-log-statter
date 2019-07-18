@@ -15,6 +15,7 @@ var (
 	noStatusLineRegex    = regexp.MustCompile(`(?P<target>\/\/.+)\s+(?P<status>NO\sSTATUS)`)
 	timeoutLineRegex     = regexp.MustCompile(`(?P<target>\/\/.+)\s+(?P<status>TIMEOUT)\s+in\s+(?P<duration>.+)s`)
 	flakyLineRegex       = regexp.MustCompile(`(?P<target>\/\/.+)\s+(?P<status>FLAKY),\sfailed\sin\s(?P<success>\d+)\sout\sof\s(?P<tries>\d+)\sin\s+(?P<duration>.+)s`)
+	failedMultiLineRegex = regexp.MustCompile(`(?P<target>\/\/.+)\s+(?P<status>FAILED)\sin\s(?P<failed>\d+)\sout\sof\s(?P<tries>\d+)\sin\s+(?P<duration>.+)s`)
 	flakyCachedLineRegex = regexp.MustCompile(`(?P<target>\/\/.+)\s+\((?P<cached>\d)\/\d\scached\)\s+(?P<status>FLAKY),\sfailed\sin\s(?P<success>\d+)\sout\sof\s(?P<tries>\d+)\sin\s+(?P<duration>.+)s`)
 )
 
@@ -40,6 +41,11 @@ func ParseLine(line string) (result *bazel.TargetResult, err error) {
 	}
 
 	result, err = flakyMatches(line)
+	if result != nil {
+		return
+	}
+
+	result, err = failedMultiMatches(line)
 	if result != nil {
 		return
 	}
@@ -180,6 +186,35 @@ func timeoutMatches(line string) (*bazel.TargetResult, error) {
 	result.Name = strings.TrimSpace(matches[1])
 	result.Status = bazel.Status(matches[2])
 	result.Duration, err = parseDuration(matches[3])
+	if err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func failedMultiMatches(line string) (*bazel.TargetResult, error) {
+	var err error
+
+	matches := failedMultiLineRegex.FindStringSubmatch(line)
+
+	if len(matches) == 0 {
+		return nil, nil
+	}
+
+	result := &bazel.TargetResult{}
+	result.Name = strings.TrimSpace(matches[1])
+	result.Status = bazel.Status(matches[2])
+	result.Attempts, err = strconv.Atoi(matches[4])
+	if err != nil {
+		return nil, err
+	}
+	failures, err := strconv.Atoi(matches[3])
+	if err != nil {
+		return nil, err
+	}
+	result.Successes = failures - result.Attempts
+	result.Duration, err = parseDuration(matches[5])
 	if err != nil {
 		return nil, err
 	}
