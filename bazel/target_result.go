@@ -10,6 +10,7 @@ const (
 	StatusUnknown  Status = "UNKNOWN"
 	StatusFlaky    Status = "FLAKY"
 	StatusFailed   Status = "FAILED"
+	StatusTimeout  Status = "TIMEOUT"
 )
 
 type TargetResult struct {

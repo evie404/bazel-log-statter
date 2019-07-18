@@ -95,6 +95,18 @@ func TestParseLine(t *testing.T) {
 			},
 			nil,
 		},
+		{
+			"timeout",
+			args{
+				"//social-graph/repos:go_default_test                                    TIMEOUT in 315.0s",
+			},
+			&bazel.TargetResult{
+				Name:     "//social-graph/repos:go_default_test",
+				Status:   bazel.StatusTimeout,
+				Duration: 315000 * time.Millisecond,
+			},
+			nil,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -138,6 +150,14 @@ func Test_parseDuration(t *testing.T) {
 				"0.0",
 			},
 			0,
+			nil,
+		},
+		{
+			"315.0",
+			args{
+				"315.0",
+			},
+			315000 * time.Millisecond,
 			nil,
 		},
 	}
