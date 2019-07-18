@@ -151,21 +151,10 @@ type AggregateResult struct {
 }
 
 func (a *AggregateResult) AddResult(result *bazel.TargetResult) {
-	switch result.Status {
-	case bazel.StatusFailed:
-		a.Failures += 1
-		a.Total += 1
-		a.TotalDuration += result.Duration
-	case bazel.StatusPassed:
-		a.Successes += 1
-		a.Total += 1
-		a.TotalDuration += result.Duration
-	case bazel.StatusFlaky:
-		a.Successes += result.Successes
-		a.Failures += (result.Attempts - result.Successes)
-		a.Total += result.Attempts
-		a.TotalDuration += result.Duration
-	}
+	a.Successes += result.Successes
+	a.Failures += (result.Attempts - result.Successes)
+	a.Total += result.Attempts
+	a.TotalDuration += result.Duration
 }
 
 func (a *AggregateResult) AllSuccesses() bool {
