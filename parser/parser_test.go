@@ -123,6 +123,7 @@ func TestParseLine(t *testing.T) {
 				Name:     "//social-graph/repos:go_default_test",
 				Status:   bazel.StatusTimeout,
 				Duration: 315000 * time.Millisecond,
+				Attempts: 1,
 			},
 			nil,
 		},
