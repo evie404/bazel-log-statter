@@ -169,6 +169,9 @@ func (a *AggregateResult) SuccessRatioString() string {
 	if a.Successes == a.Total {
 		return "100.00%"
 	}
+	if a.Successes == 0 {
+		return "  0.00%"
+	}
 	return fmt.Sprintf(" %.2f%%", a.SuccessRatio())
 }
 
