@@ -72,6 +72,7 @@ func cachedMatches(line string) (*bazel.TargetResult, error) {
 	result.Cached = matches[2] == "(cached)"
 	result.Status = bazel.Status(matches[3])
 	result.Duration, err = parseDuration(matches[4])
+	result.Attempts = 1
 	if err != nil {
 		return nil, err
 	}
@@ -152,6 +153,7 @@ func uncachedMatches(line string) (*bazel.TargetResult, error) {
 	result.Name = strings.TrimSpace(matches[1])
 	result.Status = bazel.Status(matches[2])
 	result.Duration, err = parseDuration(matches[3])
+	result.Attempts = 1
 	if err != nil {
 		return nil, err
 	}
